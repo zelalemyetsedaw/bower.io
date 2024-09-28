@@ -6,10 +6,10 @@ interface Module {
   name: string;
   homepage?: string;
   description?: string;
-  owner?: { login: string };  // Optional
+  owner?: { login: string }; 
   stars: number;
   licenses?: string;
-  published_at?: string;  // New field for publish date
+  published_at?: string;  
 }
 
 interface ModuleListProps {
@@ -113,10 +113,9 @@ const ModuleList: React.FC<ModuleListProps> = ({ query, sortByStars, setSortBySt
                   <p className="text-xs text-gray-400">Published: {module.published_at || 'Unknown'}</p>
                 </td>
 
-                {/* Owner & License */}
+                {/* Owner  */}
                 <td className="px-4 py-2">
-                  
-                  <p><strong></strong> {module.licenses || 'N/A'}</p>
+                  <p> {module.licenses || 'N/A'}</p>
                 </td>
 
                 {/* Stars */}
