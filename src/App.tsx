@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ModuleList from './components/ModuleList';
 import SearchBar from './components/SearchBar';
+import Footer from './components/Footer';
 
 const App: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -21,6 +22,7 @@ const App: React.FC = () => {
           <ModuleList query={query} sortByStars={sortByStars} setSortByStars={setSortByStars} />
         </div>
       </div>
+      <Footer />
     </div>
     </div>
   );
