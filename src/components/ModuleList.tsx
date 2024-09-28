@@ -4,22 +4,21 @@ import Pagination from './Pagination';
 
 interface Module {
   name: string;
+  homepage?: string;
+  description?: string;
   owner?: { login: string };  // Optional
   stars: number;
-  description?: string;
-  homepage?: string;
-  repository_url?: string;
-  keywords?: string[];
-  forks?: number;
   licenses?: string;
+  published_at?: string;  // New field for publish date
 }
 
 interface ModuleListProps {
   query: string;
   sortByStars: boolean;
+  setSortByStars: (sort: boolean) => void;
 }
 
-const ModuleList: React.FC<ModuleListProps> = ({ query, sortByStars }) => {
+const ModuleList: React.FC<ModuleListProps> = ({ query, sortByStars, setSortByStars }) => {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -32,16 +31,12 @@ const ModuleList: React.FC<ModuleListProps> = ({ query, sortByStars }) => {
       setError(null);
 
       try {
-        
-        const apiKey = process.env.REACT_APP_LIBRARIES_API_KEY; 
-        
+        const apiKey = process.env.REACT_APP_LIBRARIES_API_KEY;
         const response = await axios.get(
           `https://libraries.io/api/search?q=${query}&page=${page}&per_page=5&sort=${sortByStars ? 'stars' : 'relevance'}&api_key=${apiKey}`
         );
 
-        
-
-        const { data} = response;
+        const { data } = response;
         setModules(data);
         setTotalPages(data.length);
         setLoading(false);
@@ -51,40 +46,90 @@ const ModuleList: React.FC<ModuleListProps> = ({ query, sortByStars }) => {
       }
     };
 
-    fetchModules()
+    fetchModules();
   }, [query, sortByStars, page]);
 
-  if (loading) return <p>Loading...</p>;
+  const Spinner = () => (
+    <div className="flex justify-center items-center">
+      <div className="w-8 h-8 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+    </div>
+  );
+
+
+  // Handle loading and errors
+  if (loading) return <div className='mt-5'><Spinner /></div>;
   if (error) return <p>{error}</p>;
   if (!modules.length) return <p>No modules found.</p>;
 
   return (
-    <div className="w-3/4 p-4">
-      <ul>
-        {modules.map((module) => (
-          <li key={module.name} className="p-4 border-b">
-            <h3 className="font-bold text-lg">{module.name}</h3>
-            <p><strong>Description:</strong> {module.description || 'No description available.'}</p>
-            <p><strong>Stars:</strong> {module.stars} | <strong>Forks:</strong> {module.forks || 0}</p>
-            <p><strong>Owner:</strong> {module.owner ? module.owner.login : 'Unknown'}</p>
-            <p><strong>License:</strong> {module.licenses || 'N/A'}</p>
-            {module.homepage && (
-              <p>
-                <strong>Homepage:</strong> <a href={module.homepage} target="_blank" rel="noopener noreferrer">{module.homepage}</a>
-              </p>
-            )}
-            {module.repository_url && (
-              <p>
-                <strong>Repository URL:</strong> <a href={module.repository_url} target="_blank" rel="noopener noreferrer">{module.repository_url}</a>
-              </p>
-            )}
-            {module.keywords && (
-              <p><strong>Keywords:</strong> {module.keywords.join(', ')}</p>
-            )}
-          </li>
-        ))}
-      </ul>
-      <Pagination totalPages={totalPages} setPage={setPage} currentPage={page} />
+    <div className="w-full p-4">
+      {/* Sort by stars or relevance */}
+      <div className="flex justify-between items-center mb-4">
+        <Pagination totalPages={totalPages} setPage={setPage} currentPage={page} />
+        
+        <div className="flex items-center">
+          <label htmlFor="sort" className="mr-2 text-sm font-bold">Sort by:</label>
+          <select
+            id="sort"
+            value={sortByStars ? 'stars' : 'relevance'}
+            onChange={(e) => setSortByStars(e.target.value === 'stars')}
+            className="p-2 border rounded-md"
+          >
+            <option value="relevance">Relevance</option>
+            <option value="stars">Stars</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Responsive table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse border border-gray-200 text-left table-auto">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 border-b-2 font-semibold">Module</th>
+              <th className="px-4 py-2 border-b-2 font-semibold">Owner </th>
+              <th className="px-4 py-2 border-b-2 font-semibold">Stars</th>
+            </tr>
+          </thead>
+          <tbody>
+            {modules.map((module) => (
+              <tr key={module.name} className="border-t">
+                {/* Module Info */}
+                <td className="px-4 py-2 whitespace-normal break-words">
+                  <h3 className="font-bold">{module.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    {module.description || 'No description available.'}
+                  </p>
+                  {module.homepage && (
+                    <a
+                      href={module.homepage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm"
+                    >
+                      Homepage
+                    </a>
+                  )}
+                  <p className="text-xs text-gray-400">Published: {module.published_at || 'Unknown'}</p>
+                </td>
+
+                {/* Owner & License */}
+                <td className="px-4 py-2">
+                  
+                  <p><strong></strong> {module.licenses || 'N/A'}</p>
+                </td>
+
+                {/* Stars */}
+                <td className="px-4 py-2 text-center">
+                  <p className="font-semibold">{module.stars}</p>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      
     </div>
   );
 };

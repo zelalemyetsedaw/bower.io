@@ -10,23 +10,18 @@ const App: React.FC = () => {
  
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className='overflow-x-hidden'>
+    <div className=" flex flex-col h-screen">
       <Header />
       <div className="flex flex-1">
         <Sidebar />
-        <div className="flex flex-col w-full">
+        <div className="flex  flex-col  ">
           <SearchBar onSearch={setQuery} />
-          <div className="flex justify-end p-4">
-            <button
-              onClick={() => setSortByStars(!sortByStars)}
-              className="bg-gray-500 text-white px-4 py-2"
-            >
-              Sort by Stars
-            </button>
-          </div>
-          <ModuleList query={query} sortByStars={sortByStars} />
+          
+          <ModuleList query={query} sortByStars={sortByStars} setSortByStars={setSortByStars} />
         </div>
       </div>
+    </div>
     </div>
   );
 };
